@@ -57,10 +57,33 @@ jobs:
       - name: Verify all pages and local figures
         run: python3 scripts/verify_site.py
 
+      - name: Mirror real website into repository root for branch Pages
+        run: |
+          set -euo pipefail
+          # GitHub Pages may be configured for main / (root), not just Actions.
+          # In either case visitors must see the real study rather than README.md.
+          cp docs/index.html docs/results.html docs/writeup.html docs/reproducibility.html ./
+          mkdir -p assets
+          rsync -a --delete docs/assets/ assets/
+          cp docs/LICENSE ./LICENSE
+          touch .nojekyll
+
+      - name: Verify root-hosted pages and assets
+        run: |
+          set -euo pipefail
+          for page in index.html results.html writeup.html reproducibility.html; do
+            test -s "$page"
+            cmp "docs/$page" "$page"
+          done
+          test -s assets/css/style.css
+          for name in figure1 figure2 figure3; do test -s "assets/figures/$name.png"; done
+          test -s assets/poster.pdf
+          cmp docs/LICENSE LICENSE
+
       - name: Save the complete copy in this repository
         run: |
           set -euo pipefail
-          git add -- docs
+          git add -- docs index.html results.html writeup.html reproducibility.html assets LICENSE .nojekyll
           if ! git diff --cached --quiet; then
             git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Import complete Risky Business capstone website"
             git push origin HEAD:main

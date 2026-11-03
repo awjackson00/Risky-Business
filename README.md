@@ -27,6 +27,16 @@ The complete public-facing website lives in `docs/` and includes:
 - `assets/poster.pdf`: capstone poster
 - `LICENSE`: MIT license crediting both authors
 
+## Important: which page to open
+
+The project pages are the actual designed website, **not this repository README**.
+GitHub Pages can be configured for either `main / (root)` or the GitHub Actions deployment.
+
+To avoid accidentally displaying the README, the publishing workflow now mirrors the
+complete `docs/` site to the repository root: `index.html`, `results.html`,
+`writeup.html`, `reproducibility.html`, all figure images, CSS, poster, and license.
+Both hosting configurations therefore serve the same original designed study.
+
 ## Hosting
 
 The workflow in `.github/workflows/publish.yml` imports the original `docs/` website from **my own analysis repository** on the first run. It copies the actual image and PDF files, validates local HTML references, commits the copy into this repository, and attempts to publish through GitHub Pages.
