@@ -10,7 +10,6 @@ This is Alexander Jackson's separately hosted copy of the jointly authored **Ris
 
 - **Target public site:** https://awjackson00.github.io/Risky-Business/
 - **Results and figures:** https://awjackson00.github.io/Risky-Business/results.html
-- **Original team-hosted site:** https://daneherrin.github.io/data510--Quant-Back-Testing-/
 - **Analysis repository (including source notebooks):** https://github.com/awjackson00/data510--Quant-Back-Testing-
 - **My portfolio:** https://awjackson00.github.io/projects/risky-business.html
 
