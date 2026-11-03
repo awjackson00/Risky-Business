@@ -10,6 +10,7 @@ This is Alexander Jackson's separately hosted copy of the jointly authored **Ris
 
 - **Target public site:** https://awjackson00.github.io/Risky-Business/
 - **Results and figures:** https://awjackson00.github.io/Risky-Business/results.html
+- **Original team-hosted site:** https://daneherrin.github.io/data510--Quant-Back-Testing-/
 - **Analysis repository (including source notebooks):** https://github.com/awjackson00/data510--Quant-Back-Testing-
 - **My portfolio:** https://awjackson00.github.io/projects/risky-business.html
 
@@ -30,7 +31,7 @@ The complete public-facing website lives in `docs/` and includes:
 
 The workflow in `.github/workflows/publish.yml` imports the original `docs/` website from **my own analysis repository** on the first run. It copies the actual image and PDF files, validates local HTML references, commits the copy into this repository, and attempts to publish through GitHub Pages.
 
-**One-time setup:** In this repository, open **Settings → Pages → Build and deployment**, set **Source: GitHub Actions**. Then open **Actions → Publish Risky Business → Run workflow** if the initial run failed before Pages was enabled.
+**GitHub Pages setup:** Pages has been enabled for this repository. The deployment workflow publishes the site using GitHub Actions. If a deployment fails because of Pages settings, verify **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
 Future ordinary pushes to `main` publish this repository's own `docs/` content, without resetting local edits. To intentionally refresh the copy from the analytical source, open **Actions → Publish Risky Business → Run workflow** and select **Refresh website copy from analysis repository**.
 
