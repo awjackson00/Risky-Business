@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Write-up — Risky Business: Quantitative Portfolio Management for Optimized Risk</title>
+<meta name="description" content="Full capstone write-up: abstract, methods, results, discussion, and references for the Portfolio Resilience backtesting project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ledger"><div class="ledger-seg crisis" style="width:10.94%;" title="Dot-com crash"><span>Dot-com crash</span></div><div class="ledger-seg growth" style="width:20.62%;" title="Recovery"><span>Recovery</span></div><div class="ledger-seg crisis" style="width:7.89%;" title="GFC"><span>GFC</span></div><div class="ledger-seg growth" style="width:23.67%;" title="Recovery / ZIRP"><span>Recovery / ZIRP</span></div><div class="ledger-seg steady" style="width:15.78%;" title="Pre-COVID"><span>Pre-COVID</span></div><div class="ledger-seg crisis" style="width:7.89%;" title="COVID"><span>COVID</span></div><div class="ledger-seg crisis" style="width:3.93%;" title="2022 Rate Cycle"></div><div class="ledger-seg crisis" style="width:0.98%;" title="Regional Banking Stress"></div><div class="ledger-seg steady" style="width:7.57%;" title="Post-Crisis"><span>Post-Crisis</span></div></div><div class="wrap"><div class="ledger-key"><span><i class="dot-growth"></i>Growth / recovery</span><span><i class="dot-crisis"></i>Crisis / stress</span><span><i class="dot-steady"></i>Steady state</span><span style="margin-left:auto">Nine regimes, Jan 2000 &ndash; May 2025</span></div></div>
+
+<header class="site">
+  <div class="wrap">
+    <nav class="site">
+      <a class="brand" href="index.html">Risky Business <em>/</em> Portfolio Resilience</a>
+      <div class="navlinks">
+        <a href="index.html">Overview</a><a href="results.html">Results</a><a href="writeup.html" class="active">Write-up</a><a href="reproducibility.html">Reproducibility</a><a href="index.html#ethics">Ethics</a><a href="index.html#team">Team</a>
+        <a href="https://github.com/awjackson00/data510--Quant-Back-Testing-" target="_blank" rel="noopener">Repo &#8599;</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-bottom:24px;">
+  <div class="wrap">
+    <div class="eyebrow">Final write-up</div>
+    <h1 class="title" style="font-size:clamp(28px,4vw,40px)">Risky Business: Quantitative Portfolio Management for Optimized Risk</h1>
+    <h2 class="subtitle">Portfolio Resilience: Backtesting Asset Allocation Strategies During Financial Crises</h2>
+    <div class="byline"><strong>Dane Herrin</strong> &amp; <strong>Alexander Jackson</strong> &middot; DATA 510 Data Science Capstone &middot; Willamette University &middot; Summer 2026</div>
+  </div>
+</section>
+<section class="block">
+  <div class="wrap">
+    <div class="toc">
+      <div class="l">Contents</div>
+      <ol><li><a href="#abstract">Abstract</a></li><li><a href="#introduction-problem-and-research-questions">Introduction: Problem and Research Questions</a></li><li><a href="#impact-and-stakeholders">Impact and Stakeholders</a></li><li><a href="#related-work-and-background">Related Work and Background</a></li><li><a href="#data-and-data-engineering">Data and Data Engineering</a></li><li><a href="#ethics-and-responsible-use">Ethics and Responsible Use</a></li><li><a href="#methods-and-evaluation">Methods and Evaluation</a></li><li><a href="#results-and-visualizations">Results and Visualizations</a></li><li><a href="#discussion-limitations-and-future-work">Discussion, Limitations, and Future Work</a></li><li><a href="#conclusions-and-recommendations">Conclusions and Recommendations</a></li><li><a href="#reproducibility">Reproducibility</a></li><li><a href="#references">References</a></li></ol>
+    </div>
+    <div class="prose">
+      <h2 id="abstract">Abstract</h2>
+<p>This project evaluates how different portfolio constructions perform during normal market conditions, growth periods, and financial crises. Investors often focus primarily on total return, but return alone does not reveal the amount or type of risk required to achieve that performance. During crises, portfolios that perform well in growth periods can become substantially more volatile and experience significant drawdowns.</p>
+<p>We developed a reproducible backtesting workflow using historical daily market data obtained from Yahoo Finance through the <code>yfinance</code> Python package (Aroussi, n.d.; Yahoo, n.d.). Five portfolio constructions were evaluated: Barbell, Mega-Cap Technology, Energy, Real Estate, and Fast-Moving Consumer Goods (FMCG). The portfolios were compared across nine market regimes ranging from the Dot-com crash through the post-2023 period and were also evaluated against broad-market benchmarks.</p>
+<p>Performance was measured using annualized return, annualized volatility, Sharpe ratio, Sortino ratio, rolling one-year Sharpe ratio, cumulative return, and regime-specific behavior. The quantitative results show substantial differences across regimes. For example, Mega-Cap Technology produced a 63.10% annualized return with a 1.833 Sharpe ratio during the 2020–2021 COVID period, but produced a -46.35% annualized return and -1.179 Sharpe ratio during the 2022 rate cycle. Energy behaved almost oppositely during 2022, producing a 39.60% annualized return and 1.484 Sharpe ratio. FMCG was considerably more stable during the same period, with a -1.13% annualized return.</p>
+<p>The results demonstrate that no single portfolio was consistently dominant across every market regime. High-growth portfolios provided substantial upside but also experienced significant downside during stress periods. Defensive portfolios reduced some forms of exposure but came with opportunity costs and were not immune to losses. ARIMA forecasting was also evaluated but did not reveal strong predictive structure in daily portfolio returns. Overall, the project supports using multiple return and downside-risk metrics rather than evaluating portfolio resilience through return alone.</p><h2 id="introduction-problem-and-research-questions">Introduction: Problem and Research Questions</h2>
+<p>Many investors and analysts evaluate portfolios based on expected gains, recent performance, or exposure to popular sectors. This can be misleading because financial crises frequently expose risks that are difficult to observe during stable market conditions. A portfolio can perform extremely well during a long expansion and still experience substantial losses when volatility rises, interest rates change, or correlations between assets increase.</p>
+<p>This project focuses on risk-aware portfolio backtesting. Instead of asking only which portfolio earned the highest return, we evaluate which portfolios preserved value, limited downside exposure, and maintained stronger risk-adjusted performance across different market environments.</p>
+<p>The primary research question is:</p>
+<blockquote>
+<p><strong>How can portfolio optimization help stakeholders construct portfolios that preserve return potential while reducing drawdowns during periods of financial crisis and market uncertainty?</strong></p>
+</blockquote>
+<p>The supporting research questions are:</p>
+<ol>
+<li>Do drawdown-resistant portfolios experience lower gains during growth years compared with regular market indexes?</li>
+<li>How does portfolio performance during crisis periods compare with performance during normal market conditions?</li>
+<li>How are Sharpe and Sortino ratios affected during periods of uncertainty compared with periods of growth?</li>
+<li>How do technology, energy, real estate, consumer staples, and defensive Treasury-based portfolios behave during different forms of market stress?</li>
+</ol>
+<p>These questions move the analysis beyond return maximization. In this project, portfolio resilience refers to the ability to maintain reasonable return potential while limiting volatility, downside risk, and deterioration in risk-adjusted performance during adverse market conditions.</p><h2 id="impact-and-stakeholders">Impact and Stakeholders</h2>
+<p>This project is designed for stakeholders who need to evaluate portfolio risk beyond simple total return. Potential stakeholders include institutional funds, risk-averse investors, portfolio managers, financial analysts, finance educators, investment clubs, risk managers, and students studying portfolio analytics.</p>
+<p>The practical value of this project is that it demonstrates the tradeoff between upside potential and downside protection. A portfolio with the highest historical return is not necessarily the best portfolio for every stakeholder. Some investors may prioritize maximum long-term growth, while others may place greater value on lower drawdowns, reduced volatility, or more consistent performance across market regimes.</p>
+<p>The results make this tradeoff visible. Mega-Cap Technology, for example, achieved extremely strong performance in several growth periods but experienced a -46.35% annualized return during the 2022 rate cycle. Energy experienced the same market environment very differently, generating a 39.60% annualized return during 2022. These differences show why portfolio decisions should consider the type of risk exposure rather than relying solely on historical average returns.</p>
+<p>This project is educational and analytical and is not intended to provide investment advice. Its purpose is to demonstrate how historical backtesting can support more informed thinking about diversification, downside risk, asset allocation, and portfolio resilience.</p><h2 id="related-work-and-background">Related Work and Background</h2>
+<p>This project builds on concepts from modern portfolio theory, risk-adjusted return analysis, financial backtesting, crisis-period analysis, and time-series modeling.</p>
+<p>Modern portfolio theory formalized the idea that investors should evaluate portfolios jointly in terms of expected return and variance rather than assessing securities in isolation (Markowitz, 1952). Diversification can reduce portfolio risk when assets have different return patterns, although crisis periods may weaken those diversification benefits when correlations change.</p>
+<p>Risk-adjusted metrics provide additional information beyond total return. The Sharpe framework evaluates return relative to total volatility and is grounded in the broader development of equilibrium asset pricing and risk-return tradeoffs (Sharpe, 1964). In this project, higher Sharpe ratios indicate stronger excess return per unit of total return volatility.</p>
+<p>The Sortino ratio instead emphasizes downside deviation, distinguishing harmful downside variation from upside variation (Sortino &amp; van der Meer, 1991; Sortino &amp; Price, 1994). This is particularly relevant because the central research question concerns drawdowns and portfolio behavior under adverse conditions.</p>
+<p>The project also considers fragility and asymmetric responses to stress. Taleb (2012) argues that systems should be evaluated not only by average outcomes but also by how they respond to volatility, disorder, and extreme events. That perspective motivates the project's emphasis on regime-specific portfolio behavior rather than relying only on full-period averages.</p>
+<p>ARIMA was evaluated as a statistical time-series baseline using the Box–Jenkins framework (Box et al., 2015). The implementation used <code>statsmodels</code>, a Python package for econometric and statistical modeling (Seabold &amp; Perktold, 2010). ARIMA was not interpreted as a trading strategy; instead, it was used to test whether portfolio-level daily returns exhibited sufficiently stable autoregressive structure to support short-horizon forecasting.</p>
+<p>The broader empirical workflow was also informed by the reproducible-finance approach described by Voigt et al. (2024), which emphasizes transparent, reproducible financial analysis in Python.</p><h2 id="data-and-data-engineering">Data and Data Engineering</h2>
+<p>Historical daily market prices were collected from Yahoo Finance through <code>yfinance</code> (Aroussi, n.d.; Yahoo, n.d.). The project developed daily return series for the individual assets, constructed weighted portfolio returns, assigned observations to market regimes, and calculated portfolio-level performance metrics.</p>
+<h3>Barbell Portfolio</h3>
+<p>The final Barbell implementation uses:</p>
+<ul>
+<li><strong>95% IEF</strong>, representing intermediate-term U.S. Treasury exposure</li>
+<li><strong>5% ^VIX</strong>, representing volatility exposure</li>
+</ul>
+<p>The weights remain fixed at 95% and 5%.</p>
+<p>The VIX component is an analytical proxy rather than an investable security. Earlier exploratory notebooks tested alternative Treasury proxies, but the final Sharpe, Sortino, and regime-level metrics reported in this paper use IEF and VIX.</p>
+<h3>Mega-Cap Technology Portfolio</h3>
+<p>The Mega-Cap Technology portfolio consists of Apple, Microsoft, NVIDIA, Amazon, Google, Meta, Broadcom, and Tesla. When all eight securities are available, each receives a target weight of <strong>12.5%</strong>.</p>
+<p>Because several companies did not have publicly traded data during the earliest regimes, the final analysis dynamically equal-weights the securities available on each date. This prevents unavailable pre-IPO securities from being treated as if they existed historically.</p>
+<h3>Energy Portfolio</h3>
+<p>The Energy portfolio contains ExxonMobil, Chevron, ConocoPhillips, EOG Resources, Schlumberger, NextEra Energy, Duke Energy, Constellation Energy, Southern Company, and Dominion Energy.</p>
+<p>With all ten holdings available, each receives a target weight of <strong>10%</strong>. The analysis dynamically equal-weights the securities that are available on each date.</p>
+<h3>Real Estate Portfolio</h3>
+<p>The Real Estate portfolio is <strong>100% Vanguard Real Estate ETF (VNQ)</strong>. Because VNQ did not begin trading until 2004, the portfolio does not have results for the Dot-com crash regime.</p>
+<h3>Fast-Moving Consumer Goods Portfolio</h3>
+<p>The FMCG portfolio consists of Walmart, Costco, Target, Procter &amp; Gamble, Unilever, Kimberly-Clark, Coca-Cola, PepsiCo, Nestlé, and General Mills. Each company receives an equal <strong>10% target weight</strong>.</p>
+<h3>Benchmarks</h3>
+<p>The analysis also uses broad-market benchmark series to provide context for portfolio performance, including the S&amp;P 500 and market return minus the risk-free rate where applicable.</p>
+<p>The primary processing pipeline is:</p>
+<p><strong>Ticker and portfolio definitions → historical prices → daily returns → portfolio weighting → portfolio returns → regime labels → performance metrics → visualizations</strong></p>
+<p>The final reported regime metrics use the analysis window from January 1, 2000 through May 1, 2025.</p><h2 id="ethics-and-responsible-use">Ethics and Responsible Use</h2>
+<p>All data used in this project are public financial-market data. The project does not contain personally identifiable information, private investor information, account-level data, or restricted financial records.</p>
+<p>The first major ethical risk is that readers could interpret the analysis as investment advice. The project therefore presents all findings as historical and educational. Historical portfolio performance does not demonstrate that the same strategy will perform similarly in future markets.</p>
+<p>The second major risk is <strong>backtesting overconfidence</strong>. Portfolio strategies are being evaluated after the relevant market events have already occurred. Researchers therefore know which companies survived, which sectors performed well, and what each crisis ultimately looked like. This introduces hindsight that would not have been available to an investor making decisions in real time.</p>
+<p>A related issue is <strong>survivorship bias</strong>. The portfolios contain securities that are currently known and available. Companies that failed, disappeared, or were acquired may be underrepresented. Historical results may therefore make the construction of some portfolios appear cleaner than it would have been prospectively.</p>
+<p>Different asset inception dates also create comparability issues. The analysis partially addresses this for multi-stock portfolios through dynamic equal weighting across available securities, but the composition of those portfolios consequently changes over time.</p>
+<p>Finally, the VIX is not directly investable. The Barbell portfolio therefore represents a theoretical volatility-sensitive construction rather than a directly implementable investment strategy. A practical portfolio would require an investable volatility instrument, derivatives strategy, or other tail-risk implementation.</p><h2 id="methods-and-evaluation">Methods and Evaluation</h2>
+<p>Portfolio returns are calculated from daily security returns using the portfolio construction rules described above. Performance is then evaluated separately across defined historical market regimes.</p>
+<h3>Market Regime Definitions</h3>
+<div class="table-wrap"><table class="data">
+<thead>
+<tr>
+<th>Regime</th>
+<th>Date Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dot-com crash</td>
+<td>January 1, 2000 – October 9, 2002</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>October 10, 2002 – December 31, 2007</td>
+</tr>
+<tr>
+<td>Global Financial Crisis (GFC)</td>
+<td>January 1, 2008 – December 31, 2009</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>January 1, 2010 – December 31, 2015</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>January 1, 2016 – December 31, 2019</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>January 1, 2020 – December 31, 2021</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>January 1, 2022 – December 31, 2022</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>March 1, 2023 – May 31, 2023</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>June 1, 2023 – May 1, 2025</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Dot-com results require additional caution. IEF began trading during 2002, meaning the Barbell portfolio does not cover the full Dot-com window even though enough observations exist to calculate metrics. VNQ did not yet exist and therefore has no Dot-com result.</p>
+<h3>Evaluation Metrics</h3>
+<p>Each portfolio is evaluated using:</p>
+<ul>
+<li>Annualized return</li>
+<li>Annualized volatility</li>
+<li>Sharpe ratio</li>
+<li>Sortino ratio</li>
+<li>Cumulative return</li>
+<li>Rolling one-year Sharpe ratio</li>
+<li>Crisis-period performance</li>
+<li>Recovery-period performance</li>
+<li>Benchmark comparison</li>
+</ul>
+<p>Annualized return in the summary analysis is calculated by multiplying mean daily return by 252 trading days. Sharpe ratios use daily excess returns relative to the risk-free rate and are annualized using the square root of 252. The Sharpe ratio is used as a total-volatility risk-adjusted measure (Sharpe, 1964). Sortino ratios similarly use excess returns but focus on downside deviation (Sortino &amp; Price, 1994).</p>
+<p>Cumulative-return figures provide an additional interpretation because annualized arithmetic return can be sensitive to the length of the evaluation period. This is especially important for short regimes such as the three-month regional banking period.</p>
+<h3>ARIMA</h3>
+<p>ARIMA was evaluated on portfolio-level daily return series using the Box–Jenkins time-series framework (Box et al., 2015) and the <code>statsmodels</code> implementation (Seabold &amp; Perktold, 2010).</p>
+<p>The purpose was not to create a trading strategy but to test whether daily portfolio returns contained stable autoregressive structure. The models generally produced forecasts close to zero and did not yield strong or consistent predictive results. Because of this, ARIMA is treated as an inconclusive statistical result rather than a primary source of portfolio recommendations.</p><h2 id="results-and-visualizations">Results and Visualizations</h2>
+<p>The results show that portfolio behavior varies substantially across market regimes. The summary metrics below provide the quantitative evidence behind the regime-level comparisons instead of requiring the figures to carry the entire evidentiary burden.</p>
+<h3>Table 1. Summary Performance Metrics by Portfolio and Market Regime</h3>
+<div class="table-wrap"><table class="data">
+<thead>
+<tr>
+<th>Regime</th>
+<th>Portfolio</th>
+<th style="text-align: right;">Sharpe</th>
+<th style="text-align: right;">Sortino</th>
+<th style="text-align: right;">Annualized Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dot-com crash</td>
+<td>Barbell*</td>
+<td style="text-align: right;">3.720</td>
+<td style="text-align: right;">6.908</td>
+<td style="text-align: right;">45.70%</td>
+</tr>
+<tr>
+<td>Dot-com crash</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">-0.163</td>
+<td style="text-align: right;">-0.284</td>
+<td style="text-align: right;">-5.72%</td>
+</tr>
+<tr>
+<td>Dot-com crash</td>
+<td>Energy</td>
+<td style="text-align: right;">0.272</td>
+<td style="text-align: right;">0.414</td>
+<td style="text-align: right;">10.10%</td>
+</tr>
+<tr>
+<td>Dot-com crash</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">N/A</td>
+<td style="text-align: right;">N/A</td>
+<td style="text-align: right;">N/A</td>
+</tr>
+<tr>
+<td>Dot-com crash</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0.105</td>
+<td style="text-align: right;">5.18%</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.406</td>
+<td style="text-align: right;">0.664</td>
+<td style="text-align: right;">6.11%</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">1.731</td>
+<td style="text-align: right;">2.662</td>
+<td style="text-align: right;">50.31%</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>Energy</td>
+<td style="text-align: right;">1.448</td>
+<td style="text-align: right;">2.183</td>
+<td style="text-align: right;">26.79%</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.499</td>
+<td style="text-align: right;">0.705</td>
+<td style="text-align: right;">13.73%</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.868</td>
+<td style="text-align: right;">1.348</td>
+<td style="text-align: right;">12.80%</td>
+</tr>
+<tr>
+<td>GFC</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.577</td>
+<td style="text-align: right;">1.057</td>
+<td style="text-align: right;">7.88%</td>
+</tr>
+<tr>
+<td>GFC</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">0.202</td>
+<td style="text-align: right;">0.299</td>
+<td style="text-align: right;">9.37%</td>
+</tr>
+<tr>
+<td>GFC</td>
+<td>Energy</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.95%</td>
+</tr>
+<tr>
+<td>GFC</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.187</td>
+<td style="text-align: right;">0.279</td>
+<td style="text-align: right;">13.58%</td>
+</tr>
+<tr>
+<td>GFC</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.190</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">5.25%</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.817</td>
+<td style="text-align: right;">1.504</td>
+<td style="text-align: right;">8.58%</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">1.289</td>
+<td style="text-align: right;">1.901</td>
+<td style="text-align: right;">28.74%</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>Energy</td>
+<td style="text-align: right;">0.665</td>
+<td style="text-align: right;">0.958</td>
+<td style="text-align: right;">10.85%</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.772</td>
+<td style="text-align: right;">1.026</td>
+<td style="text-align: right;">15.47%</td>
+</tr>
+<tr>
+<td>Recovery / ZIRP</td>
+<td>FMCG</td>
+<td style="text-align: right;">1.060</td>
+<td style="text-align: right;">1.515</td>
+<td style="text-align: right;">12.17%</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.601</td>
+<td style="text-align: right;">1.167</td>
+<td style="text-align: right;">7.00%</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">1.308</td>
+<td style="text-align: right;">1.671</td>
+<td style="text-align: right;">29.88%</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>Energy</td>
+<td style="text-align: right;">0.684</td>
+<td style="text-align: right;">1.014</td>
+<td style="text-align: right;">10.63%</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.552</td>
+<td style="text-align: right;">0.755</td>
+<td style="text-align: right;">9.05%</td>
+</tr>
+<tr>
+<td>Pre-COVID</td>
+<td>FMCG</td>
+<td style="text-align: right;">1.079</td>
+<td style="text-align: right;">1.471</td>
+<td style="text-align: right;">13.53%</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.802</td>
+<td style="text-align: right;">1.552</td>
+<td style="text-align: right;">8.90%</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">1.833</td>
+<td style="text-align: right;">2.162</td>
+<td style="text-align: right;">63.10%</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>Energy</td>
+<td style="text-align: right;">0.458</td>
+<td style="text-align: right;">0.563</td>
+<td style="text-align: right;">16.62%</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.620</td>
+<td style="text-align: right;">0.663</td>
+<td style="text-align: right;">19.68%</td>
+</tr>
+<tr>
+<td>COVID</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.916</td>
+<td style="text-align: right;">1.133</td>
+<td style="text-align: right;">18.41%</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>Barbell</td>
+<td style="text-align: right;">-1.259</td>
+<td style="text-align: right;">-2.368</td>
+<td style="text-align: right;">-11.15%</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">-1.179</td>
+<td style="text-align: right;">-1.973</td>
+<td style="text-align: right;">-46.35%</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>Energy</td>
+<td style="text-align: right;">1.484</td>
+<td style="text-align: right;">2.230</td>
+<td style="text-align: right;">39.60%</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">-1.194</td>
+<td style="text-align: right;">-1.884</td>
+<td style="text-align: right;">-27.51%</td>
+</tr>
+<tr>
+<td>2022 Rate Cycle</td>
+<td>FMCG</td>
+<td style="text-align: right;">-0.168</td>
+<td style="text-align: right;">-0.209</td>
+<td style="text-align: right;">-1.13%</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.482</td>
+<td style="text-align: right;">0.930</td>
+<td style="text-align: right;">11.43%</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">4.397</td>
+<td style="text-align: right;">11.928</td>
+<td style="text-align: right;">117.08%</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>Energy</td>
+<td style="text-align: right;">-0.630</td>
+<td style="text-align: right;">-0.897</td>
+<td style="text-align: right;">-6.72%</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">-1.211</td>
+<td style="text-align: right;">-1.720</td>
+<td style="text-align: right;">-21.00%</td>
+</tr>
+<tr>
+<td>Regional Banking Stress</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.381</td>
+<td style="text-align: right;">0.563</td>
+<td style="text-align: right;">8.88%</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>Barbell</td>
+<td style="text-align: right;">0.287</td>
+<td style="text-align: right;">0.507</td>
+<td style="text-align: right;">7.72%</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>Mega Tech</td>
+<td style="text-align: right;">1.045</td>
+<td style="text-align: right;">1.497</td>
+<td style="text-align: right;">35.48%</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>Energy</td>
+<td style="text-align: right;">0.490</td>
+<td style="text-align: right;">0.661</td>
+<td style="text-align: right;">13.56%</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>REIT (VNQ)</td>
+<td style="text-align: right;">0.341</td>
+<td style="text-align: right;">0.503</td>
+<td style="text-align: right;">11.22%</td>
+</tr>
+<tr>
+<td>Post-Crisis</td>
+<td>FMCG</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">0.552</td>
+<td style="text-align: right;">9.34%</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>The Barbell Dot-com result uses only the portion of the regime for which IEF data are available and therefore should not be interpreted as performance across the full 2000–2002 crash.</em></p>
+<p><strong>Source:</strong> Authors' calculations from the final portfolio return series in <code>SharpeRatioSheet.ipynb</code>.</p><p>Table 1 demonstrates why the type of crisis is critical to portfolio evaluation. There is no portfolio that consistently ranks first across all regimes.</p>
+<p>Mega-Cap Technology generated some of the highest returns in the analysis. It produced a <strong>50.31% annualized return with a 1.731 Sharpe ratio during the 2002–2007 recovery</strong>, a <strong>29.88% annualized return with a 1.308 Sharpe ratio during the Pre-COVID period</strong>, and a <strong>63.10% annualized return with a 1.833 Sharpe ratio during 2020–2021</strong>. These results demonstrate substantial upside during expansionary and recovery environments.</p>
+<p>However, the same portfolio was one of the weakest during the 2022 rate cycle. Its annualized return declined to <strong>-46.35%</strong>, while its Sharpe ratio fell to <strong>-1.179</strong> and Sortino ratio to <strong>-1.973</strong>. This is direct evidence of the downside tradeoff associated with concentrated growth exposure.</p>
+<p>Energy produced a different pattern. During the Global Financial Crisis its annualized return was only <strong>0.95%</strong> with a Sharpe ratio near zero at <strong>0.006</strong>, but during the 2022 rate cycle it was the strongest portfolio in the comparison, producing a <strong>39.60% annualized return</strong>, <strong>1.484 Sharpe ratio</strong>, and <strong>2.230 Sortino ratio</strong>.</p>
+<p>FMCG generally displayed more moderate results. During the 2022 rate cycle, FMCG returned <strong>-1.13%</strong>, substantially better than Mega Tech at -46.35% and VNQ at -27.51%. Its Sharpe ratio of <strong>-0.168</strong> was still negative, but the magnitude of deterioration was significantly smaller than in the growth and real-estate portfolios.</p>
+<p>The results also reinforce the limits of labeling a single portfolio as universally defensive. The Barbell portfolio generated positive risk-adjusted results across several periods, including a <strong>0.817 Sharpe ratio and 1.504 Sortino ratio during Recovery/ZIRP</strong>, but it also experienced a <strong>-11.15% annualized return and -1.259 Sharpe ratio during the 2022 rate cycle</strong>.</p><h3>Figure 1. Rolling One-Year Sharpe Ratio by Portfolio</h3>
+<p><img alt="Figure 1. Rolling One-Year Sharpe Ratio by Portfolio" src="assets/figures/figure1.png" /></p>
+<p>Figure 1 shows the rolling one-year Sharpe ratios for Barbell, Mega-Cap Technology, Energy, Real Estate, and FMCG. The shaded regions identify major stress and recovery regimes.</p>
+<p>The figure reinforces the regime-level metrics in Table 1. Mega-Cap Technology frequently achieved strong positive rolling Sharpe ratios during growth periods but experienced sharp deterioration during stressful markets. The primary takeaway is that risk-adjusted performance is not stable through time. Even portfolios with strong long-term performance can experience periods in which their risk-adjusted returns become negative.</p>
+<p><strong>Source:</strong> Authors' calculations.</p><h3>Figure 2. Benchmark Cumulative Returns by Regime</h3>
+<p><img alt="Figure 2. Benchmark Cumulative Returns by Regime" src="assets/figures/figure2.png" /></p>
+<p>Figure 2 compares SPY and Mkt-RF across the defined market regimes. The benchmark series experienced substantial weakness during the Dot-com crash, Global Financial Crisis, and 2022 rate cycle. The COVID period shows a sharp initial decline followed by substantial recovery, while the regional banking stress period was shorter and less severe for the broad benchmark series.</p>
+<p>This figure provides context for interpreting the constructed portfolios. Broad-market exposure itself behaves differently depending on the market environment, so positive portfolio performance during a recovery does not necessarily demonstrate superior portfolio construction. Comparing the portfolios with benchmarks helps distinguish portfolio-specific resilience from general market recovery.</p>
+<p><strong>Source:</strong> Authors' calculations.</p><h3>Figure 3. Cumulative Returns by Regime for Portfolios and Benchmarks</h3>
+<p><img alt="Figure 3. Cumulative Returns by Regime for Portfolios and Benchmarks" src="assets/figures/figure3.png" /></p>
+<p>Figure 3 compares all five constructed portfolios with the benchmark series within each regime.</p>
+<p>Mega-Cap Technology produced the strongest cumulative upside during several recovery and expansion periods, consistent with its 50.31% annualized return during the 2002–2007 recovery, 29.88% during Pre-COVID, and 63.10% during the COVID regime. However, its 2022 performance illustrates the cost of this upside exposure.</p>
+<p>Energy behaved differently depending on the nature of the crisis. Its strong 39.60% annualized return during the 2022 rate cycle contrasts with its near-flat 0.95% annualized return during the GFC and -6.72% annualized result during regional banking stress.</p>
+<p>The Barbell portfolio generally produced more moderate outcomes and did not dominate cumulative returns. Its role is therefore better interpreted as a defensive comparison than a return-maximizing portfolio.</p>
+<p>FMCG also displayed relatively moderate behavior. It did not capture the same upside as Mega-Cap Technology during major growth periods, but its -1.13% annualized return during 2022 illustrates how its downside behavior differed from the much larger losses in Mega Tech and Real Estate.</p>
+<p>Together, Table 1 and Figures 1–3 show that portfolio resilience depends on both the portfolio and the specific market regime.</p>
+<p><strong>Source:</strong> Authors' calculations.</p><h3>ARIMA Results</h3>
+<p>ARIMA was evaluated as a time-series forecasting method using the Box–Jenkins framework (Box et al., 2015) and <code>statsmodels</code> (Seabold &amp; Perktold, 2010), but it did not produce sufficiently strong results to justify using it as a primary visualization or decision model.</p>
+<p>Daily portfolio returns are noisy and frequently centered near zero. The ARIMA forecasts similarly tended to converge toward near-zero values and did not reveal stable predictive structure across portfolios.</p>
+<p>This should not be interpreted as a mechanical failure of ARIMA. Instead, it represents a useful null result: under the specifications tested in this project, simple ARIMA models did not provide enough predictive information to improve the central portfolio-resilience analysis.</p>
+<p>The project's strongest evidence therefore comes from historical backtesting, risk-adjusted performance metrics, benchmark comparisons, and regime-specific return behavior.</p><h2 id="discussion-limitations-and-future-work">Discussion, Limitations, and Future Work</h2>
+<p>The results demonstrate that portfolio resilience cannot be represented by a single number. Return, volatility, Sharpe ratio, Sortino ratio, drawdowns, and regime-specific performance all provide different information.</p>
+<p>Mega-Cap Technology demonstrates the clearest risk-return tradeoff. It was the strongest portfolio across several expansion periods, including a 63.10% annualized return during the COVID regime, but it also produced the largest loss among the five portfolios during the 2022 rate cycle at -46.35%.</p>
+<p>Energy demonstrates that sector performance is highly dependent on the type of crisis. It provided little risk-adjusted return during the GFC but strongly outperformed the other portfolios during 2022.</p>
+<p>FMCG demonstrated comparatively stable behavior in several stress periods but did not participate in growth to the same extent as Mega-Cap Technology. The Barbell construction similarly provided a useful defensive comparison but did not eliminate downside exposure.</p>
+<p>Real Estate was particularly sensitive to changing financial conditions. VNQ had a -27.51% annualized return and -1.194 Sharpe ratio during the 2022 rate cycle and a -21.00% annualized return during regional banking stress.</p>
+<p>Several limitations affect interpretation.</p>
+<p>First, historical performance does not guarantee future performance. The analysis evaluates known historical crises, while future crises may arise from different causes.</p>
+<p>Second, backtesting creates a risk of hindsight bias and overconfidence. Portfolio composition is being evaluated after the outcomes of these crises are known.</p>
+<p>Third, survivorship bias may affect the selected holdings. The portfolios consist largely of companies and assets that are recognizable and available today.</p>
+<p>Fourth, asset inception dates differ. Dynamic equal weighting reduces this problem for the stock portfolios, but portfolio composition is not perfectly constant through time. VNQ does not exist during the Dot-com regime, and IEF provides only partial coverage near the end of the Dot-com crash.</p>
+<p>Fifth, the VIX is not directly investable. The Barbell portfolio should therefore be interpreted as a theoretical volatility-sensitive comparison rather than an immediately implementable trading portfolio.</p>
+<p>Sixth, the regional banking regime covers only three months. Annualizing returns from a short interval can create very large values. The Mega Tech annualized return of 117.08% during that regime should therefore be interpreted together with the cumulative-return figure rather than as an expectation of a sustainable annual return.</p>
+<p>Seventh, transaction costs, taxes, bid-ask spreads, and portfolio rebalancing costs are not included.</p>
+<p>Eighth, Yahoo Finance data and adjusted prices may be revised. Reproducibility therefore depends on documenting the analysis window and code used to create the final outputs (Aroussi, n.d.; Yahoo, n.d.).</p>
+<p>Ninth, ARIMA forecasting was inconclusive and did not reveal stable predictive structure in daily portfolio returns.</p>
+<p>Future work could extend the project by calculating formal maximum drawdown statistics for every portfolio and regime, testing alternative crisis definitions, incorporating transaction costs, comparing multiple rebalancing schedules, replacing VIX with an investable volatility strategy, and performing optimization that selects portfolio weights prospectively rather than evaluating only predefined portfolios.</p><h2 id="conclusions-and-recommendations">Conclusions and Recommendations</h2>
+<p>This project shows that portfolio resilience should not be judged using return alone.</p>
+<p>The results provide clear examples. Mega-Cap Technology generated a 63.10% annualized return during the COVID regime but lost 46.35% on an annualized basis during the 2022 rate cycle. Energy generated 39.60% during that same 2022 environment, while FMCG declined only 1.13%. The same market event therefore affected different portfolio constructions in dramatically different ways.</p>
+<p>No single portfolio was consistently best across all nine regimes. Growth-oriented portfolios provided substantial upside but were vulnerable to certain stress environments. Defensive portfolios reduced exposure to some market risks but also experienced losses and sacrificed return during long growth periods.</p>
+<p>Stakeholders should therefore evaluate portfolios using a multi-metric framework. Cumulative return measures upside potential. Annualized volatility measures instability. Sharpe ratio measures return relative to total risk (Sharpe, 1964). Sortino ratio focuses specifically on downside risk (Sortino &amp; Price, 1994). Regime-specific analysis shows whether these relationships remain stable when market conditions change.</p>
+<p>The strongest practical recommendation is not to select a portfolio based only on the strategy with the highest historical cumulative return. Stakeholders should instead identify the risk exposures they are willing to tolerate and evaluate whether the portfolio continues to behave acceptably during adverse regimes.</p>
+<p>ARIMA and similar forecasting methods should be treated as supporting analytical tools rather than primary decision engines. In this analysis, ARIMA did not provide conclusive predictive value.</p>
+<p>Overall, the project provides a reproducible framework for comparing return potential with downside resilience across historical market conditions. Its purpose is educational rather than advisory, but the results demonstrate why risk-aware, regime-specific portfolio evaluation is important.</p><h2 id="reproducibility">Reproducibility</h2>
+<p>The project repository is available at:</p>
+<p><strong>https://github.com/awjackson00/data510--Quant-Back-Testing-</strong></p>
+<p>The primary analysis notebooks are:</p>
+<ul>
+<li><code>notebooks/EDA Capstone.ipynb</code></li>
+<li><code>notebooks/SharpeRatioSheet.ipynb</code></li>
+<li><code>notebooks/portfolioConstruction.ipynb</code></li>
+<li><code>notebooks/ARIMA Time-Series Modeling.ipynb</code></li>
+</ul>
+<p>The final regime-level Sharpe, Sortino, return, and volatility calculations reported in this paper are generated in <code>SharpeRatioSheet.ipynb</code>.</p>
+<p>The primary dependencies include Python, NumPy, pandas, <code>yfinance</code>, Tidy Finance, matplotlib, seaborn, <code>statsmodels</code>, and scikit-learn. <code>yfinance</code> provides programmatic access to Yahoo Finance market data for research and educational use (Aroussi, n.d.), while Tidy Finance provides a reproducible framework for empirical financial research in Python (Voigt et al., 2024).</p>
+<p>To reproduce the analysis, a reader should clone the repository, install the listed dependencies, rebuild the historical price and daily-return data, construct the portfolio return series using the documented weighting rules, assign observations to the specified regime date ranges, and then run the Sharpe/Sortino and visualization notebooks.</p>
+<p>Reproducibility depends especially on preserving the exact portfolio definitions, historical regime dates, and data-analysis window. Yahoo Finance may revise historical adjusted prices or ticker availability, so future data pulls may differ slightly from the data used to generate the final results.</p><h2 id="references">References</h2>
+<p>Aroussi, R. (n.d.). <em>yfinance</em> [Computer software]. GitHub. https://github.com/ranaroussi/yfinance</p>
+<p>Box, G. E. P., Jenkins, G. M., Reinsel, G. C., &amp; Ljung, G. M. (2015). <em>Time series analysis: Forecasting and control</em> (5th ed.). John Wiley &amp; Sons.</p>
+<p>Markowitz, H. (1952). Portfolio selection. <em>The Journal of Finance, 7</em>(1), 77–91. https://doi.org/10.2307/2975974</p>
+<p>Seabold, S., &amp; Perktold, J. (2010). statsmodels: Econometric and statistical modeling with Python. In <em>Proceedings of the 9th Python in Science Conference</em> (pp. 92–96).</p>
+<p>Sharpe, W. F. (1964). Capital asset prices: A theory of market equilibrium under conditions of risk. <em>The Journal of Finance, 19</em>(3), 425–442. https://doi.org/10.1111/j.1540-6261.1964.tb02865.x</p>
+<p>Sortino, F. A., &amp; Price, L. N. (1994). Performance measurement in a downside risk framework. <em>The Journal of Investing, 3</em>(3), 59–64. https://doi.org/10.3905/joi.3.3.59</p>
+<p>Sortino, F. A., &amp; van der Meer, R. (1991). Downside risk: Capturing what's at stake in investment situations. <em>The Journal of Portfolio Management, 17</em>(4), 27–31. https://doi.org/10.3905/jpm.1991.409343</p>
+<p>Taleb, N. N. (2012). <em>Antifragile: Things that gain from disorder</em>. Random House.</p>
+<p>Voigt, S., Scheuch, C., Weiss, P., &amp; Frey, C. (2024). <em>Tidy Finance with Python</em>. Taylor &amp; Francis. https://doi.org/10.1201/9781032684307</p>
+<p>Yahoo. (n.d.). <em>Yahoo Finance: Historical data</em>. Retrieved August 14, 2026, from https://finance.yahoo.com/</p>
+    </div>
+  </div>
+</section>
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-row">
+      <span>DATA 510 Data Science Capstone &middot; Willamette University &middot; Summer 2026</span>
+      <span>
+        <a href="https://github.com/awjackson00/data510--Quant-Back-Testing-" target="_blank" rel="noopener">GitHub repository</a> &middot;
+        <a href="index.html#ethics">Ethics &amp; data notice</a> &middot;
+        <a href="reproducibility.html">Reproducibility</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
+

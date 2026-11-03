@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results & Figures — Risky Business</title>
+<meta name="description" content="Table 1 and Figures 1-3 from the Portfolio Resilience capstone: Sharpe, Sortino, and cumulative returns across nine market regimes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ledger"><div class="ledger-seg crisis" style="width:10.94%;" title="Dot-com crash"><span>Dot-com crash</span></div><div class="ledger-seg growth" style="width:20.62%;" title="Recovery"><span>Recovery</span></div><div class="ledger-seg crisis" style="width:7.89%;" title="GFC"><span>GFC</span></div><div class="ledger-seg growth" style="width:23.67%;" title="Recovery / ZIRP"><span>Recovery / ZIRP</span></div><div class="ledger-seg steady" style="width:15.78%;" title="Pre-COVID"><span>Pre-COVID</span></div><div class="ledger-seg crisis" style="width:7.89%;" title="COVID"><span>COVID</span></div><div class="ledger-seg crisis" style="width:3.93%;" title="2022 Rate Cycle"></div><div class="ledger-seg crisis" style="width:0.98%;" title="Regional Banking Stress"></div><div class="ledger-seg steady" style="width:7.57%;" title="Post-Crisis"><span>Post-Crisis</span></div></div><div class="wrap"><div class="ledger-key"><span><i class="dot-growth"></i>Growth / recovery</span><span><i class="dot-crisis"></i>Crisis / stress</span><span><i class="dot-steady"></i>Steady state</span><span style="margin-left:auto">Nine regimes, Jan 2000 &ndash; May 2025</span></div></div>
+
+<header class="site">
+  <div class="wrap">
+    <nav class="site">
+      <a class="brand" href="index.html">Risky Business <em>/</em> Portfolio Resilience</a>
+      <div class="navlinks">
+        <a href="index.html">Overview</a><a href="results.html" class="active">Results</a><a href="writeup.html">Write-up</a><a href="reproducibility.html">Reproducibility</a><a href="index.html#ethics">Ethics</a><a href="index.html#team">Team</a>
+        <a href="https://github.com/awjackson00/data510--Quant-Back-Testing-" target="_blank" rel="noopener">Repo &#8599;</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-bottom:24px;">
+  <div class="wrap">
+    <div class="eyebrow">Results &amp; visualizations</div>
+    <h1 class="title" style="font-size:clamp(28px,4vw,40px)">Portfolio behavior varies substantially across market regimes</h1>
+    <p class="lede">No portfolio in this study ranks first across all nine regimes. Mega-Cap Technology led during
+    every expansion and recovery period tested but produced the steepest loss of any portfolio during the 2022
+    rate cycle. Energy did almost the opposite. The table and figures below carry the full regime-by-regime
+    evidence.</p>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="block-head"><h2 class="h">Table 1. Summary performance metrics by portfolio and market regime</h2></div>
+    
+<div class="table-wrap">
+<table class="data">
+<thead><tr><th>Portfolio</th><th>Sharpe</th><th>Sortino</th><th>Annualized return</th></tr></thead>
+<tbody>
+<tr class="section-row"><td colspan="5">Dot-com crash</td></tr><tr><td>Barbell*</td><td class="num pos">3.720</td><td class="num pos">6.908</td><td class="num pos">45.70%</td></tr><tr><td>Mega Tech</td><td class="num neg">-0.163</td><td class="num neg">-0.284</td><td class="num neg">-5.72%</td></tr><tr><td>Energy</td><td class="num pos">0.272</td><td class="num pos">0.414</td><td class="num pos">10.10%</td></tr><tr><td>REIT (VNQ)</td><td class="num ">N/A</td><td class="num ">N/A</td><td class="num ">N/A</td></tr><tr><td>FMCG</td><td class="num pos">0.066</td><td class="num pos">0.105</td><td class="num pos">5.18%</td></tr><tr class="section-row"><td colspan="5">Recovery</td></tr><tr><td>Barbell</td><td class="num pos">0.406</td><td class="num pos">0.664</td><td class="num pos">6.11%</td></tr><tr><td>Mega Tech</td><td class="num pos">1.731</td><td class="num pos">2.662</td><td class="num pos">50.31%</td></tr><tr><td>Energy</td><td class="num pos">1.448</td><td class="num pos">2.183</td><td class="num pos">26.79%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.499</td><td class="num pos">0.705</td><td class="num pos">13.73%</td></tr><tr><td>FMCG</td><td class="num pos">0.868</td><td class="num pos">1.348</td><td class="num pos">12.80%</td></tr><tr class="section-row"><td colspan="5">GFC</td></tr><tr><td>Barbell</td><td class="num pos">0.577</td><td class="num pos">1.057</td><td class="num pos">7.88%</td></tr><tr><td>Mega Tech</td><td class="num pos">0.202</td><td class="num pos">0.299</td><td class="num pos">9.37%</td></tr><tr><td>Energy</td><td class="num pos">0.006</td><td class="num pos">0.008</td><td class="num pos">0.95%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.187</td><td class="num pos">0.279</td><td class="num pos">13.58%</td></tr><tr><td>FMCG</td><td class="num pos">0.190</td><td class="num pos">0.259</td><td class="num pos">5.25%</td></tr><tr class="section-row"><td colspan="5">Recovery / ZIRP</td></tr><tr><td>Barbell</td><td class="num pos">0.817</td><td class="num pos">1.504</td><td class="num pos">8.58%</td></tr><tr><td>Mega Tech</td><td class="num pos">1.289</td><td class="num pos">1.901</td><td class="num pos">28.74%</td></tr><tr><td>Energy</td><td class="num pos">0.665</td><td class="num pos">0.958</td><td class="num pos">10.85%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.772</td><td class="num pos">1.026</td><td class="num pos">15.47%</td></tr><tr><td>FMCG</td><td class="num pos">1.060</td><td class="num pos">1.515</td><td class="num pos">12.17%</td></tr><tr class="section-row"><td colspan="5">Pre-COVID</td></tr><tr><td>Barbell</td><td class="num pos">0.601</td><td class="num pos">1.167</td><td class="num pos">7.00%</td></tr><tr><td>Mega Tech</td><td class="num pos">1.308</td><td class="num pos">1.671</td><td class="num pos">29.88%</td></tr><tr><td>Energy</td><td class="num pos">0.684</td><td class="num pos">1.014</td><td class="num pos">10.63%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.552</td><td class="num pos">0.755</td><td class="num pos">9.05%</td></tr><tr><td>FMCG</td><td class="num pos">1.079</td><td class="num pos">1.471</td><td class="num pos">13.53%</td></tr><tr class="section-row"><td colspan="5">COVID</td></tr><tr><td>Barbell</td><td class="num pos">0.802</td><td class="num pos">1.552</td><td class="num pos">8.90%</td></tr><tr><td>Mega Tech</td><td class="num pos">1.833</td><td class="num pos">2.162</td><td class="num pos">63.10%</td></tr><tr><td>Energy</td><td class="num pos">0.458</td><td class="num pos">0.563</td><td class="num pos">16.62%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.620</td><td class="num pos">0.663</td><td class="num pos">19.68%</td></tr><tr><td>FMCG</td><td class="num pos">0.916</td><td class="num pos">1.133</td><td class="num pos">18.41%</td></tr><tr class="section-row"><td colspan="5">2022 Rate Cycle</td></tr><tr><td>Barbell</td><td class="num neg">-1.259</td><td class="num neg">-2.368</td><td class="num neg">-11.15%</td></tr><tr><td>Mega Tech</td><td class="num neg">-1.179</td><td class="num neg">-1.973</td><td class="num neg">-46.35%</td></tr><tr><td>Energy</td><td class="num pos">1.484</td><td class="num pos">2.230</td><td class="num pos">39.60%</td></tr><tr><td>REIT (VNQ)</td><td class="num neg">-1.194</td><td class="num neg">-1.884</td><td class="num neg">-27.51%</td></tr><tr><td>FMCG</td><td class="num neg">-0.168</td><td class="num neg">-0.209</td><td class="num neg">-1.13%</td></tr><tr class="section-row"><td colspan="5">Regional Banking Stress</td></tr><tr><td>Barbell</td><td class="num pos">0.482</td><td class="num pos">0.930</td><td class="num pos">11.43%</td></tr><tr><td>Mega Tech</td><td class="num pos">4.397</td><td class="num pos">11.928</td><td class="num pos">117.08%</td></tr><tr><td>Energy</td><td class="num neg">-0.630</td><td class="num neg">-0.897</td><td class="num neg">-6.72%</td></tr><tr><td>REIT (VNQ)</td><td class="num neg">-1.211</td><td class="num neg">-1.720</td><td class="num neg">-21.00%</td></tr><tr><td>FMCG</td><td class="num pos">0.381</td><td class="num pos">0.563</td><td class="num pos">8.88%</td></tr><tr class="section-row"><td colspan="5">Post-Crisis</td></tr><tr><td>Barbell</td><td class="num pos">0.287</td><td class="num pos">0.507</td><td class="num pos">7.72%</td></tr><tr><td>Mega Tech</td><td class="num pos">1.045</td><td class="num pos">1.497</td><td class="num pos">35.48%</td></tr><tr><td>Energy</td><td class="num pos">0.490</td><td class="num pos">0.661</td><td class="num pos">13.56%</td></tr><tr><td>REIT (VNQ)</td><td class="num pos">0.341</td><td class="num pos">0.503</td><td class="num pos">11.22%</td></tr><tr><td>FMCG</td><td class="num pos">0.365</td><td class="num pos">0.552</td><td class="num pos">9.34%</td></tr>
+</tbody>
+</table>
+</div>
+<p style="color:var(--muted-2); font-size:12.5px; margin-top:10px;">
+* The Barbell Dot-com result uses only the portion of the regime for which IEF data are available and should not
+be read as performance across the full 2000&ndash;2002 crash. REIT (VNQ) has no Dot-com result because VNQ did
+not begin trading until 2004. Source: authors' calculations from the final portfolio return series in
+<code>SharpeRatioSheet.ipynb</code>.
+</p>
+
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="block-head"><h2 class="h">Figure 1. Rolling one-year Sharpe ratio by portfolio</h2></div>
+    <figure class="fig">
+      <img src="assets/figures/figure1.png" alt="Figure 1. Rolling one-year Sharpe ratio for Barbell, Mega Tech, Energy, REIT, and FMCG portfolios, 2000-2025, with shaded crisis regimes">
+      <figcaption>
+        Rolling one-year Sharpe ratios for Barbell, Mega-Cap Technology, Energy, Real Estate, and FMCG, with
+        shaded regions marking the major stress and recovery regimes. Mega-Cap Technology posts the strongest
+        rolling Sharpe ratios in growth periods but also the sharpest drawdowns in stress periods &mdash;
+        risk-adjusted performance is not stable through time, even for a portfolio with strong long-run returns.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="block-head"><h2 class="h">Figure 2. Benchmark cumulative returns by regime</h2></div>
+    <figure class="fig">
+      <img src="assets/figures/figure2.png" alt="Figure 2. Cumulative returns of SPY and Mkt-RF benchmarks across the nine market regimes">
+      <figcaption>
+        SPY and Mkt&minus;RF compared across the nine defined regimes. The broad market itself behaves very
+        differently by environment &mdash; weak through the Dot-com crash, GFC, and 2022 rate cycle; a sharp
+        COVID decline followed by a strong recovery; a shorter, milder regional banking stress episode. This is
+        the baseline the five constructed portfolios are measured against in Figure 3.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="block-head"><h2 class="h">Figure 3. Cumulative returns by regime, portfolios vs. benchmarks</h2></div>
+    <figure class="fig">
+      <img src="assets/figures/figure3.png" alt="Figure 3. Cumulative returns by regime for all five portfolios compared against benchmarks">
+      <figcaption>
+        All five constructed portfolios plotted against the benchmark series within each regime. Mega-Cap
+        Technology produced the strongest cumulative upside in several recovery and expansion regimes (50.31%
+        annualized in the 2002&ndash;2007 recovery, 29.88% Pre-COVID, 63.10% during COVID) but gave much of it
+        back in 2022. Energy, Barbell, and FMCG were comparatively moderate across most regimes; FMCG's
+        &minus;1.13% in 2022 stands in sharp contrast to Mega Tech's &minus;46.35% and REIT's &minus;27.51% in
+        the same year.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="block-head"><h2 class="h">ARIMA: a null result</h2></div>
+    <p class="lede" style="font-size:15px;">
+      ARIMA was tested on portfolio-level daily return series using the Box&ndash;Jenkins framework and
+      <code>statsmodels</code>, not as a trading strategy but to check whether daily returns carried stable
+      autoregressive structure. They mostly didn't &mdash; forecasts converged toward zero and did not reveal
+      predictive structure strong enough to inform the resilience analysis. We report this as a useful null
+      result rather than a modeling failure: the project's evidence comes from historical backtesting,
+      risk-adjusted metrics, and regime-specific comparisons, not from forecasting.
+    </p>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-row">
+      <span>DATA 510 Data Science Capstone &middot; Willamette University &middot; Summer 2026</span>
+      <span>
+        <a href="https://github.com/awjackson00/data510--Quant-Back-Testing-" target="_blank" rel="noopener">GitHub repository</a> &middot;
+        <a href="index.html#ethics">Ethics &amp; data notice</a> &middot;
+        <a href="reproducibility.html">Reproducibility</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
+
